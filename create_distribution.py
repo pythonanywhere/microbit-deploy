@@ -3,11 +3,12 @@
 
 Usage:
    create_distribution.py --aws_access_key=<access_key> --aws_secret_key=<secret_key>
-                          --s3_bucket_name=<s3_bucket_name> --ssl_cert_id=<ssl_cert_id> <domain>
+                          --s3_bucket_name=<s3_bucket_name> <domain>
 
 """
 
 from boto.cloudfront import CloudFrontConnection
+from boto.cloudfront.origin import CustomOrigin
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from docopt import docopt
@@ -49,10 +50,22 @@ def create_s3_bucket(aws_access_key, aws_secret_key, s3_bucket_name):
 
 
 
-def create_cloudfront_distribution(aws_access_key, aws_secret_key, bucket_endpoint, ssl_cert_id, domain):
+def create_cloudfront_distribution(aws_access_key, aws_secret_key, bucket_endpoint, hostname):
     connection = CloudFrontConnection(aws_access_key, aws_secret_key)
-    connection
-    print bucket_endpoint
+
+    origin = CustomOrigin(dns_name=bucket_endpoint, origin_protocol_policy="http-only")
+
+    distribution = connection.create_distribution(origin=origin, enabled=True, cnames=[hostname])
+
+    print("A CloudFront distribution has been created.")
+    print("You need to do two things:")
+    print("1. Go to the DNS provider for {hostname} and set up a CNAME to map it to {distribution_domain}".format(
+        hostname=hostname, distribution_domain=distribution.domain_name
+    ))
+    print("2. Go to the AWS control panel, and associate the appropriate SSL cert with disctribution {id}".format(
+        id=distribution.id
+    ))
+    print("(The latter step is required because boto currently doesn't support setting certificates.)")
 
 
 
@@ -61,18 +74,10 @@ def main():
     aws_access_key = arguments["--aws_access_key"]
     aws_secret_key = arguments["--aws_secret_key"]
     s3_bucket_name = arguments["--s3_bucket_name"]
-    ssl_cert_id = arguments["--ssl_cert_id"]
     domain = arguments["<domain>"]
 
     bucket_endpoint = create_s3_bucket(aws_access_key, aws_secret_key, s3_bucket_name)
-    create_cloudfront_distribution(
-        aws_access_key, aws_secret_key,
-        bucket_endpoint, ssl_cert_id, domain
-    )
-
-
-
-
+    create_cloudfront_distribution(aws_access_key, aws_secret_key, bucket_endpoint, domain)
 
 
 if __name__ == "__main__":
