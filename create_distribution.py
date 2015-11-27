@@ -8,17 +8,37 @@ Usage:
 """
 
 from boto.cloudfront import CloudFrontConnection
-from boto.s3.connection import Location, S3Connection
+from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from docopt import docopt
 import os
+from textwrap import dedent
 
 
 def create_s3_bucket(aws_access_key, aws_secret_key, s3_bucket_name):
     connection = S3Connection(aws_access_key, aws_secret_key)
 
-    bucket = connection.create_bucket(s3_bucket_name, location=Location.EU)
+    bucket = connection.create_bucket(s3_bucket_name, location='eu-west-1')
     bucket.configure_website(suffix="index.html")
+
+    policy = dedent("""
+        {{
+          "Version": "2012-10-17",
+          "Statement": [
+            {{
+              "Sid": "PublicReadGetObject",
+              "Effect": "Allow",
+              "Principal": {{
+                "AWS": "*"
+              }},
+              "Action": "s3:GetObject",
+              "Resource": "arn:aws:s3:::{s3_bucket_name}/*"
+            }}
+          ]
+        }}
+    """).format(s3_bucket_name=s3_bucket_name).strip()
+    bucket.set_policy(policy)
+
 
     index_file_key = Key(bucket)
     index_file_key.key = "index.html"
