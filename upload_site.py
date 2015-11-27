@@ -8,6 +8,7 @@ Usage:
 """
 
 from boto.cloudfront import CloudFrontConnection
+from boto.s3 import connect_to_region
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
 from docopt import docopt
@@ -18,6 +19,17 @@ def upload_to_s3_bucket(aws_access_key, aws_secret_key, s3_bucket_name, path):
     s3_connection = S3Connection(aws_access_key, aws_secret_key)
 
     bucket = s3_connection.get_bucket(s3_bucket_name)
+
+    # Workaround for boto issue #2207 as per anna-buttfield-sirca
+    # at https://github.com/boto/boto/issues/2207#issuecomment-60682869
+    bucket_location = bucket.get_location()
+    if bucket_location:
+        s3_connection = connect_to_region(
+            bucket_location,
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key
+        )
+        bucket = s3_connection.get_bucket(s3_bucket_name)
 
     print("Deleting existing content")
     for key in bucket.list():
