@@ -62,7 +62,7 @@ def create_cloudfront_distribution(aws_access_key, aws_secret_key, bucket_endpoi
     print("1. Go to the DNS provider for {hostname} and set up a CNAME to map it to {distribution_domain}".format(
         hostname=hostname, distribution_domain=distribution.domain_name
     ))
-    print("2. Go to the AWS control panel, and associate the appropriate SSL cert with disctribution {id}".format(
+    print("2. Go to the AWS control panel, and associate the appropriate SSL cert with distribution {id}".format(
         id=distribution.id
     ))
     print("(The latter step is required because boto currently doesn't support setting certificates.)")
