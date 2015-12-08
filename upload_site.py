@@ -40,7 +40,13 @@ def upload_to_s3_bucket(aws_access_key, aws_secret_key, s3_bucket_name, path):
         assert source_path.startswith(path)
         dest_path = source_path[len(path):]
         for filename in files:
+            if filename == ".gitignore":
+                print "Skipping .gitignore"
+                continue
             print "Uploading {} from {} to {}".format(filename, source_path, dest_path)
+            if dest_path.startswith(".git"):
+                print "It's in a .git* directory, skipping"
+                continue
             key = Key(bucket)
             key.key = os.path.join(dest_path, filename)
             key.set_contents_from_filename(os.path.join(source_path, filename))
