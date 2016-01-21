@@ -5,6 +5,7 @@ Usage:
    create_distribution.py --aws_access_key=<access_key> --aws_secret_key=<secret_key>
                           --s3_bucket_name=<s3_bucket_name> <domain>
 
+NB - this command cannot be run with the restricted IAM privileges on the ntoll user.
 """
 
 from boto.cloudfront import CloudFrontConnection
