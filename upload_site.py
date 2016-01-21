@@ -5,10 +5,14 @@ Usage:
    upload_site.py <environment> --key=<aws_access_key> --secret=<aws_secret_key> <path>
 
 Options:
-    environment:    "test", "staging" or "live"
-    --key:          AWS access key ID
-    --secret:       AWS secret key (may need to wrap this in quotes)
+    environment    "test", "staging" or "live"
 
+    --key          AWS access key ID
+
+    --secret       AWS secret key (may need to wrap this in quotes)
+
+    path           The path to the new code for the editor
+                   (typically a git checkout of github.com/bbcmicrobit/PythonEditor)
 """
 
 from __future__ import print_function
