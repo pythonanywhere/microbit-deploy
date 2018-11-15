@@ -26,13 +26,14 @@ def main():
         private_key = f.read()
 
     connection = IAMConnection(aws_access_key, aws_secret_key)
-    connection.upload_server_cert(
-        "PythonAnywhere-main-wildcard-cert-{:%Y-%m-%d}".format(datetime.now()),
+    response = connection.upload_server_cert(
+        "PythonAnywhere-wildcard-cert-{:%Y-%m-%d}".format(datetime.now()),
         certificate,
         private_key,
         chain,
         path="/cloudfront/",
     )
+    print("Cert uploaded, response was {}".format(response))
 
 
 
